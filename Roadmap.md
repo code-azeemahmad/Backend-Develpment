@@ -1,34 +1,31 @@
-# Server is nothing but a software that serves
+# Backend
 
-# 2 Major Components
-- **A programing language**
-  - Java, JS, PHP, Golang, C++ (on a framework)
-- **A Database**
-  - Mongo, MySQL, PostGreSQL, SQLite (ORM, ODM)
+> A server is software that serves requests.
 
-#### *Database is always in another continent*
-#### *Express(routing) and Mongoose(database)*
+## 2 Major Components
+- **A Programming Language** — Java, JS, PHP, Golang, C++
+- **A Database** — Mongo, MySQL, PostgreSQL, SQLite (ORM/ODM)
 
-## JavaScript based backend
+> *Database is always in another continent*  
+> *Express (routing) and Mongoose (database)*
+
+## JavaScript-Based Backend
 - Data handling
 - File handling
-- Third Party API handling 
+- Third Party API handling
 
-## A JS Runtime
-- Node js
+## JS Runtimes
+- Node.js
 - Bun
 - Deno
 
 ## Directory Structure
-- Package.json, .env, (Readme, git, lint, prettier)
-- **src**
-  - index(DB connects)
-  - App(config, cookie)
-  - Constants(enums, DB-name) 
-- **DB**
-- **Models**
-- **Controllers**
-- **Routers**
-- **Middlewares**
-- **Utils**
-- **More** *(depends)*
+- `package.json`, `.env`, `.gitignore`, `prettier`, `lint`
+- **src/** — index (DB connect), App (config, cookie), Constants (enums, DB name)
+- **DB/**
+- **Models/**
+- **Controllers/**
+- **Routers/**
+- **Middlewares/**
+- **Utils/**
+- **More** *(depends on project)*
