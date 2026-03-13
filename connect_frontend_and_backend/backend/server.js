@@ -6,7 +6,7 @@ const app = express();
 //   res.send("server is ready");
 // });
 
-app.get("/jokes", (req, res) => {
+app.get("/api/jokes", (req, res) => {
   const jokes = [
     {
       id: 1,
@@ -57,3 +57,10 @@ React routes    →  decide what UI to show on screen
 */
 
 // https://jsonformatter.org/
+
+/*
+industry bad practice to push complete backend folder to aws, digital ocean
+npm run build
+dist folder in frontend containing html, css, js
+and serve static assets in server.js using middlewares
+*/
