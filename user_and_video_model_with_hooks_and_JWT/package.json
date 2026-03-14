@@ -1,0 +1,22 @@
+{
+  "name": "professional_backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "run": "nodemon src/index.js"
+  },
+  "author": "code-azeem",
+  "license": "ISC",
+  "description": "a pro backend",
+  "devDependencies": {
+    "nodemon": "^3.1.14",
+    "prettier": "^3.8.1"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.3.0",
+    "mongoose-aggregate-paginate-v2": "^1.1.4"
+  }
+}
