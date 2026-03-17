@@ -4,17 +4,9 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
-// more controllers, more logic building
 const registerUser = asyncHandler(async (req, res) => {
-  // get user details from frontend
-  // all possible validations
-  // check if user already exists: username, email
-  // check for images, check for avatar
-  // if available, upload them to cloudinary, avatar
-  // create user object (nosql db) - create entry in db
-  // remove password and refresh token field from response
-  // check for user creation
-  // return res
+  console.log("req.files →", req.files);
+  console.log("req.body  →", req.body);
 
   const { fullname, email, username, password } = req.body;
   console.log("email:", email);
@@ -28,7 +20,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All fields are required!");
   }
 
-  const existedUser = User.findOne({
+  const existedUser = await User.findOne({
     // User directly communicates with db
     $or: [{ username }, { email }],
   });
@@ -38,33 +30,43 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // multer gives req.files access jus like express gives access to req.body
-  const avatarLocalPath = req.files?.avatar[0]?.path; // need first property
-  const coverLocalPath = req.files?.coverImage[0]?.path;
+  const avatarLocalPath = req.files?.avatar?.[0]?.path; // need first property
+  // const coverLocalPath = req.files?.coverImage?.[0]?.path;
+
+  // classical way
+  let coverLocalPath;
+  if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.lenth > 0) {
+    coverLocalPath = req.files.coverImage[0].path
+  }
 
   if (!avatarLocalPath) {
     throw new ApiError(400, "avatar is mandatory!");
   }
 
-  const avatar = await uploadOnCloudinary(avatarLocalPath)
-  const coverImage = await uploadOnCloudinary(coverLocalPath)
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  const coverImage = await uploadOnCloudinary(coverLocalPath);
 
-  if (!avatarLocalPath) {
+  console.log("TYPE:", typeof req.files?.avatar);
+  console.log("AVATAR ARRAY:", req.files?.avatar);
+  console.log("FIRST ITEM:", req.files?.avatar?.[0]);
+  console.log("PATH:", req.files?.avatar?.[0]?.path);
+
+  if (!avatar) {
     throw new ApiError(400, "avatar is mandatory!");
   }
 
   const user = await User.create({
     fullname,
-    avatar: avatar.url,
+    avatar: avatar.secure_url,
     // coverImage: coverImage.url,
-    coverImage: coverImage?.url || "",      // handle corner cases, otherwise db will blast
+    coverImage: coverImage?.secure_url || "", // handle corner cases, otherwise db will blast
     email,
     password,
     username: username.toLowerCase(),
-
   });
 
-  const createdUser = await user.findById(user._id).select(     
-    "-password -refreshToken "      // fields we don't required
+  const createdUser = await User.findById(user._id).select(
+    "-password -refreshToken " // fields we don't required
   );
 
   if (!createdUser) {
@@ -73,10 +75,11 @@ const registerUser = asyncHandler(async (req, res) => {
 
   //  return reponse with proper api response
 
-  return res.status(201).json(
-    new ApiResponse(200, createdUser, "message user registered successfully")
-  )
-
+  return res
+    .status(201)
+    .json(
+      new ApiResponse(200, createdUser, "message user registered successfully")
+    );
 });
 
 export { registerUser };

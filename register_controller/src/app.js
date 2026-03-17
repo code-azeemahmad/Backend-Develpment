@@ -17,12 +17,6 @@ app.use(cookieParser());
 // import routes
 import userRouter from './routes/user.routes.js';
 
-// routes decalaration (use app.use(use middleware to bring router from other file) instead of app.get(when controllers and routes in same file))
-// app.use('/users', userRouter);
-// control goes to user.routes.js
-// http://localhost:8000/users/register
-// http://localhost:8000/users/login
-
 app.use('/api/v1/users', userRouter);
 // // http://localhost:8000/api/v1/users/register
 

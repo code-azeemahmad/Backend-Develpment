@@ -19,15 +19,3 @@ router.route("/register").post(
 // router.route("/login").post(login);
 
 export default router;
-
-/*
- Named Export 
- → can have MANY per file 
- → MUST use exact name 
- → MUST use curly braces 
--------------------------
- Default Export 
- → only ONE per file 
- → can name it anything 
- → NO curly braces 
-*/

@@ -50,12 +50,13 @@ const userSchema = new Schema(
 );
 
 // pre hook runs auto before every save
-userSchema.pre("save", async function (next) {
-  // don't use arrow function
-  if (!this.isModified("password")) return next();
-
-  this.password = await bcrypt.hash(this.password, 10); // 10 rounds or salts
-  next();
+userSchema.pre("save", async function() {
+    /* no next parameter */
+    /* no next() calls */
+    /* just return early if needed */
+    if (!this.isModified("password")) return;
+    this.password = await bcrypt.hash(this.password, 10);
+    /* no next() at end — mongoose handles it */
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
