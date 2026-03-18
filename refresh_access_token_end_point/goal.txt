@@ -1,0 +1,74 @@
+The purpose of access and refresh token is that user is not required to entered his username and password again and again.
+Access Token is short lived. After one day, user needs to refresh access token by inserting username and password.
+Google proposed published to adopt two tokens. Access token (short lived, not saved in db) possessed by user. Refresh token (session storage, stored in db).
+If user's access token is invalidated or expired, user will get a 401 req.
+suppose, frontend user wants to access some resource and he  gets a 401 req, instead of logging in again --> hit an endpoint and refresh your access token (new access token).
+How will you get a new token? You will send your refresh token in that request. As soon I get a refresh token, as refresh token is stored in backend(db). So, I will match the token came with the request with the token stored in my database. If it is same, lets start the session again.
+so, I send new access token in cookies and lets renew the refresh to save in db.
+
+User Logs In
+      │
+      ▼
+Server generates:
+  accessToken  → given to user  (NOT saved in DB)
+  refreshToken → given to user  (SAVED in DB)
+      │
+      ▼
+User accesses resources normally
+using accessToken for 1 day
+
+
+After 1 day — accessToken expires
+      │
+      ▼
+User hits protected route
+      │
+      ▼
+Server returns 401 ← accessToken invalid
+      │
+      ▼
+/* Instead of logging in again */
+/* Frontend automatically hits: */
+POST /api/v1/users/refresh-token
+sends: refreshToken
+      │
+      ▼
+Server receives refreshToken
+matches it with DB stored token:
+
+  incoming token === DB token?
+      │
+      ├── NO  → 401 force login
+      │         (token stolen or tampered)
+      │
+      └── YES → generate new accessToken
+                generate new refreshToken
+                save new refreshToken to DB
+                send both to user
+                session continues
+
+
+User never sees a login screen
+Seamless experience 
+
+/* What Google proposed — why it's brilliant */
+
+accessToken NOT in DB:
+  → server doesn't need DB hit on every request
+  → just verify signature with secret key
+  → fast scalable
+
+refreshToken IN DB:
+  → can be invalidated anytime
+  → logout = delete from DB
+  → if stolen = delete from DB
+  → full control
+
+short lived accessToken:
+  → if stolen → only valid 1 day
+  → hacker's window is tiny
+
+long lived refreshToken:
+  → stored safely in httpOnly cookie
+  → JS cannot read it (XSS protection)
+  → user stays logged in for days
