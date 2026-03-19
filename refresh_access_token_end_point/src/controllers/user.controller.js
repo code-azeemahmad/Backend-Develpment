@@ -290,16 +290,16 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
         email,
       },
     },
-    {new: true}   // return updated document
+    { new: true } // return updated document
   ).select("-password -refreshToken");
 
   return res
-  .status(200)
-  .json(new ApiResponse(200, user, "Account details updated successfully!"));
+    .status(200)
+    .json(new ApiResponse(200, user, "Account details updated successfully!"));
 });
 
-const updateUserAvatar = asyncHandler(async(req, res) => {
-  const avatarLocalPath = req.file?.path;    // notice: file, not files
+const updateUserAvatar = asyncHandler(async (req, res) => {
+  const avatarLocalPath = req.file?.path; // notice: file, not files
 
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is missing!");
@@ -315,20 +315,49 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
     req.user._id,
     {
       $set: {
-        avatar: avatar.url
-      }
+        avatar: avatar.url,
+      },
     },
-    {new: true}
+    { new: true }
   ).select("-password -refreshToken");
 
   return res
-  .status(200)
-  .json(
-    new ApiResponse(200, user, "Avatar updated successfully!")
-  );
-
+    .status(200)
+    .json(new ApiResponse(200, user, "Avatar updated successfully!"));
 });
 
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+  /* Step 1: get file — what field name? */
+  const coverImageLocalPath = req.file?.path;
+
+  /* Step 2: validate */
+  if (!coverImageLocalPath) {
+    throw new ApiError(400, "Cover image file is missing!");
+  }
+
+  /* Step 3: upload */
+  const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+  /* Step 4: check upload */
+  if (!coverImage.url) {
+    throw new ApiError(400, "Error while uploading cover image");
+  }
+
+  /* Step 5: update DB — which field? */
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        coverImage: coverImage.url,
+      },
+    },
+    { new: true }
+  ).select("-password -refreshToken");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "User cover image updated successfully!"));
+});
 
 export {
   registerUser,
@@ -339,5 +368,5 @@ export {
   getCurrentUser,
   updateAccountDetails,
   updateUserAvatar,
-
+  updateUserCoverImage,
 };
