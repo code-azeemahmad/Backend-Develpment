@@ -13,4 +13,17 @@ const subscriptionSchema = new Schema({
 
 export const Subscription = mongoose.model("Subscription", subscriptionSchema);
 
+/*
+   every time someone subscribes:
+   one document created:
+   {
+       subscriber: "userId_of_fan",
+       channel:    "userId_of_creator"
+   }
 
+   to count subscribers of a channel:
+   count documents where channel = channelId
+
+   to count subscriptions of a user:
+   count documents where subscriber = userId
+*/
