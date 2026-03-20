@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -438,6 +439,56 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
 
 });
 
+const getWatchHistory = asyncHandler(async(req, res) => {   // aggregation pipeline code goes directly, mongoose don't work
+  const user = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(req.user._id),
+      }
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    fullname: 1,
+                    avatar: 1,
+                    username: 1,
+                  }
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              owner: {
+                $first: "$owner"  // $lookup returns array [ { fullname, username, avatar } ] $first converts to object { fullname, username, avatar }
+              },
+            },
+          },
+        ],
+      },
+    },
+  ]);
+
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200, user[0].watchHistory, "Watch history fetched successfully!")
+  );
+});
+
 export {
   registerUser,
   loginUser,
@@ -449,4 +500,27 @@ export {
   updateUserAvatar,
   updateUserCoverImage,
   getUserChannelProfile,
+  getWatchHistory,
 };
+
+/* normal mongoose queries: 
+User.findById(req.user._id)
+/*   ↑
+     mongoose AUTO converts string to ObjectId
+
+
+/* aggregation pipelines:
+User.aggregate([{ $match: { _id: req.user._id } }])
+/*                                ↑
+                                  string "64abc123"
+                                  MongoDB stores ObjectId
+                                  string ≠ ObjectId
+                                  no match found
+
+/* aggregation bypasses mongoose
+/* no auto-conversion
+/* MUST convert manually:
+new mongoose.Types.ObjectId(req.user._id)
+                         ↑
+                             ObjectId("64abc123") ✅ */
+
