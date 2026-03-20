@@ -1,10 +1,14 @@
 import {Router} from 'express';
-import { getUserChannelProfile, 
+import { changeCurrentPassword, getUserChannelProfile, 
     loginUser, logoutUser, 
     refreshAccessToken, 
     registerUser, 
     updateUserAvatar, 
-    updateUserCoverImage 
+    updateUserCoverImage,
+    changeCurrentPassword,
+    getCurrentUser,
+    updateAccountDetails,
+    getWatchHistory,
 } 
 from '../controllers/user.controller.js';
 import {upload} from "../middlewares/multer.middleware.js";
@@ -36,6 +40,13 @@ router.route("/refresh-token").post(refreshAccessToken);
     no verifyJWT    → anyone can update avatar
     no upload()     → req.file = undefined
 */
+
+router.route("/change-password").post(verifyJWT, changeCurrentPassword);
+
+router.route("/current-user".get(verifyJWT, getCurrentUser));
+
+router.route("/update-account").patch(verifyJWT, updateAccountDetails);
+
 router.route("/avatar").patch(
     verifyJWT,
     upload.single("avatar"),
@@ -55,6 +66,8 @@ router.route("/channel/:username").get(
    URL: GET /api/v1/users/channel/hello
    req.params.username = "hello"
 */
+
+router.route("/watch-history").get(verifyJWT, getWatchHistory);
 
 
 export default router;
